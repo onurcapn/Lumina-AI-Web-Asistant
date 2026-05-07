@@ -30,11 +30,15 @@ chrome.runtime.onConnect.addListener((port) => {
       const { query, contextType, contextData } = request.payload;
       
       try {
-        const settings = await chrome.storage.local.get(['activeProvider', 'apiKey', 'modelName']);
+        const settings = await chrome.storage.local.get({
+          activeProvider: 'grok',
+          apiKey: '',
+          modelName: ''
+        });
         const { activeProvider, apiKey, modelName } = settings;
 
-        if (!apiKey) {
-          port.postMessage({ type: 'error', payload: "API anahtarı ayarlanmamış. Lütfen ayarlardan yapılandırın." });
+        if (!apiKey || apiKey.trim() === '') {
+          port.postMessage({ type: 'error', payload: "API anahtarı bulunamadı. Lütfen eklenti ayarlarından API anahtarınızı girin." });
           return;
         }
 

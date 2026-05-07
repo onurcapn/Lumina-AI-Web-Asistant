@@ -106,16 +106,35 @@
   let streamPort = chrome.runtime.connect({ name: "lumina-stream" });
 
   function parseMarkdown(text) {
-    return text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
-      .replace(/`(.*?)`/g, '<code>$1</code>')
-      .replace(/^\s*-\s+(.*)/gm, '<li>$1</li>')
-      .split('\n\n').map(p => {
-        if (p.includes('<li>')) return `<ul>${p}</ul>`;
-        if (p.includes('<pre>')) return p;
-        return `<p>${p.replace(/\n/g, '<br>')}</p>`;
-      }).join('');
+    if (!text) return "";
+    
+    // Convert headers
+    let html = text.replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                   .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                   .replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+    // Convert bold and italic
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+               .replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+    // Convert code blocks
+    html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    
+    // Convert inline code
+    html = html.replace(/`(.*?)`/g, '<code>$1</code>');
+
+    // Convert lists (improved)
+    html = html.replace(/^\s*[\-\*]\s+(.*)/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+    html = html.replace(/<\/ul>\s*<ul>/g, '');
+
+    // Convert paragraphs
+    html = html.split('\n\n').map(p => {
+      if (p.trim().startsWith('<') && !p.trim().startsWith('<em>') && !p.trim().startsWith('<strong>')) return p;
+      return `<p>${p.trim().replace(/\n/g, '<br>')}</p>`;
+    }).join('');
+
+    return html;
   }
 
   function appendMessage(text, isUser = false) {
