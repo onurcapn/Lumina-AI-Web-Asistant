@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Lumina AI Web Assistant",
   "version": "1.2",
-  "description": "Premium AI text summarizer & assistant: real-time streaming, Gemini / GPT / Grok / Claude support.",
+  "description": "Premium AI Web Assistant: Gemini, GPT, Groq & Claude ile anında özetleme, analiz ve akıllı not alma.",
   "permissions": [
     "activeTab",
     "contextMenus",

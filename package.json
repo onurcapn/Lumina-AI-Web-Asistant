@@ -1,0 +1,21 @@
+{
+  "name": "lumina-ai-text-summarizer",
+  "version": "1.2.0",
+  "description": "Lumina AI Web Assistant: Ultra-fast AI text summarizer and assistant supporting Gemini, GPT, Groq, and Claude. Çoklu Yapay Zeka desteği ile premium özetleme ve analiz eklentisi.",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "chrome-extension",
+    "ai",
+    "summarizer",
+    "gemini",
+    "gpt-4o",
+    "groq",
+    "claude",
+    "grok"
+  ],
+  "author": "onurcapn",
+  "license": "MIT"
+}
