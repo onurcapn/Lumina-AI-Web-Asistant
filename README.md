@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./icons/icon128.png" width="128" height="128" alt="Lumina AI Logo">
+</p>
+
 # Lumina AI Web Assistant 🚀
 
 **Lumina AI Web Assistant**, web deneyiminizi yapay zeka ile güçlendiren, ultra hızlı ve premium tasarımlı bir Chrome eklentisidir. Sayfaları saniyeler içinde özetler, karmaşık metinleri açıklar ve önemli bilgileri not almanızı sağlar.
