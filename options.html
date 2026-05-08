@@ -94,6 +94,15 @@
       line-height: 1.4;
     }
 
+    .hint a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .hint a:hover {
+      text-decoration: underline;
+    }
+
     .hint code {
       background: rgba(255, 255, 255, 0.05);
       padding: 2px 4px;
@@ -146,7 +155,8 @@
         <label for="provider">Yapay Zeka Sağlayıcı</label>
         <select id="provider">
           <option value="grok">Grok (xAI)</option>
-          <option value="openai">OpenAI (GPT-4o/o1)</option>
+          <option value="groq">Groq (LPU) - Çok Hızlı!</option>
+          <option value="openai">OpenAI (GPT-4o)</option>
           <option value="gemini">Google Gemini</option>
           <option value="anthropic">Anthropic Claude</option>
         </select>
@@ -154,8 +164,8 @@
 
       <div class="field">
         <label for="apiKey">API Anahtarı</label>
-        <input type="password" id="apiKey" placeholder="sk-...">
-        <div class="hint">Anahtarınız tarayıcınızda güvenli bir şekilde saklanır.</div>
+        <input type="password" id="apiKey" placeholder="API anahtarınızı girin...">
+        <div class="hint" id="apiKeyHint">Anahtarınız yalnızca tarayıcınızda yerel olarak saklanır.</div>
       </div>
 
       <div class="field">

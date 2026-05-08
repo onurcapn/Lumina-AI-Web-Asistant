@@ -1,16 +1,26 @@
 // options.js
-const providerHints = {
-  grok: "Örn: grok-beta veya grok-vision-beta",
-  openai: "Örn: gpt-4o, gpt-4o-mini veya o1-preview",
-  gemini: "Örn: gemini-1.5-pro veya gemini-1.5-flash",
-  anthropic: "Örn: claude-3-5-sonnet-20240620"
+const providerApiKeyHints = {
+  grok:      { placeholder: "xai-...",        hint: "xAI Grok API anahtarı → <a href='https://console.x.ai' target='_blank'>console.x.ai</a>" },
+  groq:      { placeholder: "gsk_...",        hint: "Groq Cloud API anahtarı → <a href='https://console.groq.com' target='_blank'>console.groq.com</a>" },
+  openai:    { placeholder: "sk-...",          hint: "OpenAI API anahtarı → <a href='https://platform.openai.com/api-keys' target='_blank'>platform.openai.com</a>" },
+  gemini:    { placeholder: "AIzaSy...",       hint: "Google AI Studio → <a href='https://aistudio.google.com/apikey' target='_blank'>aistudio.google.com</a>" },
+  anthropic: { placeholder: "sk-ant-api03-...", hint: "Anthropic API anahtarı → <a href='https://console.anthropic.com/settings/keys' target='_blank'>console.anthropic.com</a>" }
 };
 
 const providerModels = {
-  grok: "grok-beta",
-  openai: "gpt-4o",
-  gemini: "gemini-1.5-pro",
-  anthropic: "claude-3-5-sonnet-20240620"
+  grok:      "grok-4.20-reasoning",
+  groq:      "llama-3.3-70b-versatile",
+  openai:    "gpt-4o",
+  gemini:    "gemini-2.0-flash",
+  anthropic: "claude-sonnet-4-5"
+};
+
+const providerHints = {
+  grok:      "Örn: <code>grok-4.20-reasoning</code>, <code>grok-3</code>",
+  groq:      "Örn: <code>llama-3.3-70b-versatile</code>, <code>deepseek-r1-distill-llama-70b</code>",
+  openai:    "Örn: <code>gpt-4o</code>, <code>gpt-4o-mini</code>, <code>o3-mini</code>",
+  gemini:    "Örn: <code>gemini-2.0-flash</code>, <code>gemini-2.5-pro</code>",
+  anthropic: "Örn: <code>claude-sonnet-4-5</code>, <code>claude-opus-4-5</code>"
 };
 
 function saveOptions() {
@@ -56,6 +66,11 @@ function updateHint(provider) {
   const modelInput = document.getElementById('modelName');
   if (!modelInput.value) {
     modelInput.placeholder = `Varsayılan: ${providerModels[provider]}`;
+  }
+  const apiInfo = providerApiKeyHints[provider];
+  if (apiInfo) {
+    document.getElementById('apiKey').placeholder = apiInfo.placeholder;
+    document.getElementById('apiKeyHint').innerHTML = apiInfo.hint;
   }
 }
 

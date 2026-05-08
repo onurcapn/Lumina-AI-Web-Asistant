@@ -1,39 +1,39 @@
-# 🌌 Lumina AI: The Premium Web Intelligence Assistant
+# Lumina AI Web Assistant 🚀
 
-Lumina AI is a high-end, multi-provider AI summarization tool designed for power users who demand speed, aesthetics, and intelligence. Transform how you consume web content with real-time streaming, smart text selection, and a beautiful SaaS-grade interface.
+**Lumina AI Web Assistant**, web deneyiminizi yapay zeka ile güçlendiren, ultra hızlı ve premium tasarımlı bir Chrome eklentisidir. Sayfaları saniyeler içinde özetler, karmaşık metinleri açıklar ve önemli bilgileri not almanızı sağlar.
 
-![Lumina AI Banner](https://img.shields.io/badge/Lumina%20AI-Premium%20Summarizer-8b5cf6?style=for-the-badge&logo=probot&logoColor=white)
+![Lumina AI Demo](./assets/demo.png)
 
-## ✨ Premium Features
+## ✨ Öne Çıkan Özellikler
 
-- **🚀 Real-Time Streaming**: Experience AI responses word-by-word. Powered by `Grok (xAI)` and `OpenAI` streaming APIs for zero-wait interactions.
-- **🪄 Magic Selection Tooltip**: Select any text on a page, and a sleek floating toolbar appears instantly. Summarize or explain selections without a single right-click.
-- **📂 Smart Context Chips**: Your selections and page data are elegantly attached as "Chips" inside the input box, giving you full control over what the AI sees.
-- **💎 SaaS-Grade UI**: A refined "Zinc" dark theme inspired by modern AI platforms like Linear and Claude. Features 24px backdrop blurs and subtle satin borders.
-- **🧠 Multi-Provider Intelligence**: Seamlessly switch between **Grok (xAI)**, **OpenAI (GPT-4o/o1)**, **Google Gemini**, and **Anthropic Claude**.
-- **📝 Markdown Master**: AI responses are rendered in beautiful Markdown with support for bold text, lists, and syntax-highlighted code blocks.
-- **🔧 Pro Configurations**: Adjust panel opacity, switch models, and manage API keys via a dedicated, secure settings page.
+- **🌐 Çoklu Sağlayıcı Desteği:** 
+  - **Groq (LPU):** Dünyanın en hızlı yapay zeka çıkarım motoru.
+  - **OpenAI:** GPT-4o ve o3-mini modelleri.
+  - **Google Gemini:** Gemini 2.0 Flash ve Pro desteği.
+  - **Anthropic:** Claude 3.5 Sonnet ve Opus modelleri.
+  - **xAI Grok:** Grok-4.20-reasoning desteği.
+- **📝 Notlarım Sistemi:** Yapay zeka yanıtlarını tek tıkla kaydedin veya manuel notlar oluşturun.
+- **🕒 Sohbet Geçmişi:** Geçmiş tüm konuşmalarınıza istediğiniz zaman geri dönün, silin veya yönetin.
+- **⚡ Akıllı Giriş Alanı:** 
+  - **Panodan Yapıştır:** Kopyaladığınız metni tek tıkla yapıştırın.
+  - **Hızlı Özetle:** Mevcut sayfayı anında analiz edin.
+- **🖱️ Seçim Araç Kutusu:** Herhangi bir metni seçtiğinizde beliren mini menü ile anında "Özetle" veya "Açıkla".
+- **🎨 Premium Tasarım:** "Zinc" renk paleti, modern glassmorphism efektleri ve akıcı animasyonlar.
 
-## 🚀 Installation
+## 🛠️ Kurulum
 
-1. **Download**: Clone this repo or download the ZIP and extract it.
-2. **Extensions Page**: Open Chrome and go to `chrome://extensions/`.
-3. **Developer Mode**: Toggle **Developer mode** on (top right).
-4. **Load Unpacked**: Click **Load unpacked** and select the `AITextSummarizer` folder.
+1. Bu depoyu indirin veya clone'layın.
+2. Chrome'da `chrome://extensions` adresine gidin.
+3. Sağ üstteki "Geliştirici Modu"nu açın.
+4. "Paketlenmemiş öğe yükle" butonuna tıklayın ve bu klasörü seçin.
+5. Eklenti simgesine tıklayarak Ayarlar'dan API anahtarınızı girin.
 
-## ⚙️ Setup & Usage
+## 🔒 Güvenlik ve Gizlilik
 
-1. **Configure**: Click the extension icon to open the panel, go to **Settings (Gear icon)**, and enter your API keys.
-2. **Summarize Page**: Click the 📄 icon in the header or the "Summarize Page" quick action.
-3. **Smart Select**: Highlight any text on a page to reveal the **Magic Tooltip**.
-4. **Chat**: Use the input box to ask follow-up questions about the page or selection.
-
-## 🛠️ Technical Excellence
-
-- **Architecture**: Chrome Extension MV3 with Background Service Workers.
-- **Communication**: Chrome Runtime Ports for stable, persistent streaming data transfer.
-- **Frontend**: Vanilla JavaScript (ES6+), Modern CSS3 with Variables & Flexbox.
-- **Security**: API keys are stored locally in `chrome.storage.local` and never leave your browser.
+- API anahtarlarınız asla uzak sunuculara gönderilmez.
+- Tüm veriler yerel tarayıcı depolamanızda (`chrome.storage.local`) şifreli olmayan ancak sadece sizin erişebileceğiniz şekilde saklanır.
+- Kod tamamen şeffaftır ve kişisel verilerinizi toplamaz.
 
 ---
-Built with ❤️ for those who value intelligence and aesthetics.
+
+*Lumina AI ile interneti daha hızlı keşfedin.*

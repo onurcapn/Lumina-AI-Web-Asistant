@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Lumina AI Summarizer",
-  "version": "1.0",
-  "description": "Premium AI assistant to summarize web pages and selected text.",
+  "version": "1.1",
+  "description": "Premium AI text summarizer: real-time streaming, Gemini / GPT / Grok / Claude support.",
   "permissions": [
     "activeTab",
     "contextMenus",
