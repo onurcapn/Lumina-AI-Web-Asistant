@@ -147,12 +147,18 @@
 </head>
 <body>
   <div class="container">
-    <h1>Lumina AI Yapılandırması</h1>
-    <p class="subtitle">Yapay zeka sağlayıcınızı seçin ve API anahtarınızı girin.</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h1 data-i18n="title">Lumina AI Yapılandırması</h1>
+      <select id="language" style="width: auto; padding: 4px 8px; font-size: 12px; height: 28px;">
+        <option value="tr">TR</option>
+        <option value="en">EN</option>
+      </select>
+    </div>
+    <p class="subtitle" data-i18n="subtitle">Yapay zeka sağlayıcınızı seçin ve API anahtarınızı girin.</p>
 
     <div class="card">
       <div class="field">
-        <label for="provider">Yapay Zeka Sağlayıcı</label>
+        <label for="provider" data-i18n="labelProvider">Yapay Zeka Sağlayıcı</label>
         <select id="provider">
           <option value="grok">Grok (xAI)</option>
           <option value="groq">Groq (LPU) - Çok Hızlı!</option>
@@ -163,13 +169,13 @@
       </div>
 
       <div class="field">
-        <label for="apiKey">API Anahtarı</label>
+        <label for="apiKey" data-i18n="labelApiKey">API Anahtarı</label>
         <input type="password" id="apiKey" placeholder="API anahtarınızı girin...">
-        <div class="hint" id="apiKeyHint">Anahtarınız yalnızca tarayıcınızda yerel olarak saklanır.</div>
+        <div class="hint" id="apiKeyHint" data-i18n="apiKeyHint">Anahtarınız yalnızca tarayıcınızda yerel olarak saklanır.</div>
       </div>
 
       <div class="field">
-        <label for="modelName">Model İsmi</label>
+        <label for="modelName" data-i18n="labelModelName">Model İsmi</label>
         <input type="text" id="modelName" placeholder="Varsayılan model kullanılır">
         <div class="hint" id="modelHint">Örn: <code>grok-beta</code></div>
       </div>
@@ -177,14 +183,14 @@
       <hr>
 
       <div class="field">
-        <label for="panelOpacity">Panel Saydamlığı</label>
+        <label for="panelOpacity" data-i18n="labelOpacity">Panel Saydamlığı</label>
         <div style="display: flex; align-items: center; gap: 12px;">
           <input type="range" id="panelOpacity" min="50" max="100" step="1" value="90" style="padding: 0; height: 6px; cursor: pointer;">
           <span id="opacityValue" style="font-size: 13px; font-weight: 600; min-width: 40px;">90%</span>
         </div>
       </div>
 
-      <button id="save">Değişiklikleri Kaydet</button>
+      <button id="save" data-i18n="btnSave">Değişiklikleri Kaydet</button>
       <div class="status" id="status"></div>
     </div>
   </div>

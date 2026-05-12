@@ -50,6 +50,118 @@
     }
   }
 
+  const translations = {
+    tr: {
+      summarize: "Özetle",
+      explain: "Açıkla",
+      chat: "Sohbet",
+      history: "Geçmiş Sohbetler",
+      notes: "Notlarım",
+      newChat: "Yeni Sohbet",
+      settings: "Ayarlar",
+      close: "Kapat",
+      welcomeTitle: "Nasıl yardımcı olabilirim?",
+      welcomeSub: "Seçtiğiniz metinleri özetleyebilir, sayfanın tamamını analiz edebilir veya sorularınızı yanıtlayabilirim.",
+      promptSummarize: "Bu sayfayı kısaca özetle",
+      btnSummarize: "📄 Sayfayı Özetle",
+      promptIdea: "Bu sayfanın ana fikri nedir?",
+      btnIdea: "💡 Ana Fikir",
+      promptExplain: "Bunu 5 yaşındaki birine anlatır gibi açıkla",
+      btnExplain: "🧸 Basitçe Açıkla",
+      promptTranslate: "Bu sayfayı İngilizce'ye çevir",
+      btnTranslate: "🌐 İngilizce'ye Çevir",
+      historyTitle: "Sohbet Geçmişi",
+      emptyHistory: "Henüz geçmiş sohbet yok.",
+      messages: "mesaj",
+      delete: "Sil",
+      addNote: "Yeni Not Ekle",
+      notePlaceholder: "Notunuzu yazın...",
+      cancel: "İptal",
+      save: "Kaydet",
+      emptyNotes: "Henüz notunuz yok.",
+      inputPlaceholder: "Yapay zekaya sorun...",
+      paste: "Yapıştır",
+      summarizePage: "Sayfayı Özetle",
+      analyzing: "Sayfa içeriği analiz ediliyor (tüm çerçeveler dahil)...",
+      errorPage: "Sayfa içeriği okunamadı. Lütfen sayfanın yüklendiğinden emin olun.",
+      errorGeneric: "İçerik çekilemedi.",
+      restoringHistory: "Henüz geçmiş sohbet yok."
+    },
+    en: {
+      summarize: "Summarize",
+      explain: "Explain",
+      chat: "Chat",
+      history: "History",
+      notes: "My Notes",
+      newChat: "New Chat",
+      settings: "Settings",
+      close: "Close",
+      welcomeTitle: "How can I help you?",
+      welcomeSub: "I can summarize selected texts, analyze the entire page, or answer your questions.",
+      promptSummarize: "Summarize this page briefly",
+      btnSummarize: "📄 Summarize Page",
+      promptIdea: "What is the main idea of this page?",
+      btnIdea: "💡 Main Idea",
+      promptExplain: "Explain this like I'm five",
+      btnExplain: "🧸 Explain Simply",
+      promptTranslate: "Translate this page to English",
+      btnTranslate: "🌐 Translate to English",
+      historyTitle: "Chat History",
+      emptyHistory: "No past chats yet.",
+      messages: "messages",
+      delete: "Delete",
+      addNote: "Add New Note",
+      notePlaceholder: "Write your note...",
+      cancel: "Cancel",
+      save: "Save",
+      emptyNotes: "You don't have any notes yet.",
+      inputPlaceholder: "Ask AI...",
+      paste: "Paste",
+      summarizePage: "Summarize Page",
+      analyzing: "Analyzing page content (including all frames)...",
+      errorPage: "Could not read page content. Please ensure the page is loaded.",
+      errorGeneric: "Failed to extract content.",
+      restoringHistory: "No past chats yet."
+    }
+  };
+
+  let currentLang = 'tr';
+
+  function updateUI() {
+    const t = translations[currentLang];
+    document.getElementById('lumina-tt-summarize').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> ${t.summarize}`;
+    document.getElementById('lumina-tt-explain').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> ${t.explain}`;
+    
+    document.getElementById('lumina-btn-chat-view').title = t.chat;
+    document.getElementById('lumina-btn-history-view').title = t.history;
+    document.getElementById('lumina-btn-notes-view').title = t.notes;
+    document.getElementById('lumina-btn-new-chat').title = t.newChat;
+    document.getElementById('lumina-btn-settings').title = t.settings;
+    document.getElementById('lumina-btn-close').title = t.close;
+
+    const welcome = document.getElementById('lumina-welcome-screen');
+    if (welcome) {
+      welcome.querySelector('h2').textContent = t.welcomeTitle;
+      welcome.querySelector('p').textContent = t.welcomeSub;
+      const prompts = welcome.querySelectorAll('.lumina-quick-prompt');
+      prompts[0].textContent = t.btnSummarize; prompts[0].setAttribute('data-prompt', t.promptSummarize);
+      prompts[1].textContent = t.btnIdea; prompts[1].setAttribute('data-prompt', t.promptIdea);
+      prompts[2].textContent = t.btnExplain; prompts[2].setAttribute('data-prompt', t.promptExplain);
+      prompts[3].textContent = t.btnTranslate; prompts[3].setAttribute('data-prompt', t.promptTranslate);
+    }
+
+    document.querySelector('.lumina-history-area .lumina-notes-title').textContent = t.historyTitle;
+    document.querySelector('.lumina-notes-area .lumina-notes-title').textContent = t.notes;
+    document.getElementById('lumina-btn-add-note-manual').title = t.addNote;
+    document.getElementById('lumina-note-text-input').placeholder = t.notePlaceholder;
+    document.getElementById('lumina-btn-cancel-note').textContent = t.cancel;
+    document.getElementById('lumina-btn-save-manual-note').textContent = t.save;
+    
+    document.getElementById('lumina-ai-input').placeholder = t.inputPlaceholder;
+    document.getElementById('lumina-btn-paste-clipboard').title = t.paste;
+    document.getElementById('lumina-btn-summarize-input').title = t.summarizePage;
+  }
+
   container.innerHTML = `
     <div id="lumina-selection-tooltip">
       <button class="lumina-tooltip-btn" id="lumina-tt-summarize">
@@ -190,6 +302,11 @@
   // Initialize
   loadNotes();
   loadHistory();
+  
+  chrome.storage.local.get({ language: 'tr' }, (items) => {
+    currentLang = items.language;
+    updateUI();
+  });
 
   function getPort() {
     if (!streamPort) {
@@ -410,17 +527,18 @@
       container.innerHTML = `<div class="lumina-empty-history"><span>Henüz geçmiş sohbet yok.</span></div>`;
       return;
     }
+    const t = translations[currentLang];
     container.innerHTML = '';
     chatSessions.slice().reverse().forEach(session => {
       const item = document.createElement('div');
       item.className = 'lumina-history-item';
       item.innerHTML = `
-        <div class="lumina-history-title">${session.title || "Yeni Sohbet"}</div>
+        <div class="lumina-history-title">${session.title || (currentLang === 'tr' ? "Yeni Sohbet" : "New Chat")}</div>
         <div class="lumina-history-meta">
-          <span>${new Date(session.id).toLocaleDateString('tr-TR')}</span>
+          <span>${new Date(session.id).toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US')}</span>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <span>${session.messages.length} mesaj</span>
-            <span class="lumina-history-delete" data-id="${session.id}">Sil</span>
+            <span>${session.messages.length} ${t.messages}</span>
+            <span class="lumina-history-delete" data-id="${session.id}">${t.delete}</span>
           </div>
         </div>
       `;
@@ -498,10 +616,11 @@
   }
 
   function renderNotes() {
+    const t = translations[currentLang];
     const notesContainer = document.getElementById('lumina-notes-container');
     if (!notesContainer) return;
     if (notes.length === 0) {
-      notesContainer.innerHTML = `<div class="lumina-empty-notes"><span>Henüz notunuz yok.</span></div>`;
+      notesContainer.innerHTML = `<div class="lumina-empty-notes"><span>${t.emptyNotes}</span></div>`;
       return;
     }
     notesContainer.innerHTML = '';
@@ -511,8 +630,8 @@
       card.innerHTML = `
         <div class="lumina-note-content">${note.content}</div>
         <div class="lumina-note-footer">
-          <span>${new Date(note.id).toLocaleDateString('tr-TR')}</span>
-          <span class="lumina-note-delete">Sil</span>
+          <span>${new Date(note.id).toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US')}</span>
+          <span class="lumina-note-delete">${t.delete}</span>
         </div>
       `;
       card.querySelector('.lumina-note-delete').addEventListener('click', () => deleteNote(note.id));
@@ -555,7 +674,8 @@
   }
 
   async function sendMessage(text) {
-    const query = text.trim() || "Açıkla.";
+    const t = translations[currentLang];
+    const query = text.trim() || (currentLang === 'tr' ? "Açıkla." : "Explain.");
     appendMessage(query, true);
     let cType = activeContext ? activeContext.type : 'general';
     let cData = activeContext ? activeContext.data : '';
@@ -697,17 +817,18 @@
   const summInputBtn = document.getElementById('lumina-btn-summarize-input');
   if (summInputBtn) {
     summInputBtn.addEventListener('click', async () => {
+      const t = translations[currentLang];
       switchView('chat');
-      appendMessage("Sayfa içeriği analiz ediliyor (tüm çerçeveler dahil)...", false);
+      appendMessage(t.analyzing, false);
       
       const pageText = await collectAllFramesContent();
       
       if (!pageText || pageText.length < 20) {
-        appendMessage("Sayfa içeriği okunamadı. Lütfen sayfanın yüklendiğinden emin olun.", false);
+        appendMessage(t.errorPage, false);
         return;
       }
       activeContext = { type: 'page', data: pageText };
-      sendMessage("Bu sayfayı özetle.");
+      sendMessage(currentLang === 'tr' ? "Bu sayfayı özetle." : "Summarize this page.");
     });
   }
 
@@ -771,7 +892,7 @@
       const text = window.getSelection().toString().trim();
       if (panel) panel.classList.add('lumina-active');
       activeContext = { type: 'selection', data: text };
-      sendMessage("Bu metni özetle.");
+      sendMessage(currentLang === 'tr' ? "Bu metni özetle." : "Summarize this text.");
     });
   }
 
@@ -781,7 +902,7 @@
       const text = window.getSelection().toString().trim();
       if (panel) panel.classList.add('lumina-active');
       activeContext = { type: 'selection', data: text };
-      sendMessage("Bunu açıkla.");
+      sendMessage(currentLang === 'tr' ? "Bunu açıkla." : "Explain this.");
     });
   }
 
@@ -791,10 +912,11 @@
       const p = target.getAttribute('data-prompt');
       const ctx = target.getAttribute('data-context');
       if (ctx === 'page') {
-        appendMessage("Sayfa analizi başlatıldı...", false);
+        const t = translations[currentLang];
+        appendMessage(t.analyzing, false);
         const pageText = await collectAllFramesContent();
         if (!pageText || pageText.length < 20) {
-          appendMessage("İçerik çekilemedi.", false);
+          appendMessage(t.errorGeneric, false);
           return;
         }
         activeContext = { type: 'page', data: pageText };
@@ -824,7 +946,7 @@
     } else if (request.type === 'OPEN_AND_SUMMARIZE_SELECTION') {
       panel.classList.add('lumina-active');
       activeContext = { type: 'selection', data: request.payload };
-      sendMessage("Bu metni özetle.");
+      sendMessage(currentLang === 'tr' ? "Bu metni özetle." : "Summarize this text.");
     }
   });
 
