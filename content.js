@@ -569,16 +569,28 @@
   async function updateCurrentSession() {
     if (currentMessages.length === 0) return;
     
-    // İlk yapay zeka cevabını bul
-    const firstAiMsg = currentMessages.find(m => !m.isUser && m.text.trim() !== "");
+    // Durum mesajlarını (analiz ediliyor vs) filtrele, gerçek cevabı bul
+    const firstAiMsg = currentMessages.find(m => {
+      if (m.isUser || !m.text.trim()) return false;
+      const t = translations[currentLang];
+      // Eğer metin "analiz ediliyor" mesajıysa geç
+      if (m.text === t.analyzing || m.text === t.restoringHistory) return false;
+      return true;
+    });
+
     let title = "";
     
     if (firstAiMsg) {
       // Yapay zeka cevabının başını al
       title = firstAiMsg.text.substring(0, 45).replace(/[\r\n#*]/g, " ").trim() + "...";
     } else {
-      // Eğer henüz cevap yoksa kullanıcı sorusunu geçici başlık yap
-      title = currentMessages[0].text.substring(0, 40) + (currentMessages[0].text.length > 40 ? "..." : "");
+      // Eğer henüz cevap yoksa kullanıcı sorusunu geçici başlık yap (durum mesajlarını yine filtrele)
+      const firstUserMsg = currentMessages.find(m => m.isUser);
+      if (firstUserMsg) {
+        title = firstUserMsg.text.substring(0, 40) + (firstUserMsg.text.length > 40 ? "..." : "");
+      } else {
+        title = currentLang === 'tr' ? "Yeni Sohbet..." : "New Chat...";
+      }
     }
 
     const sessionIndex = chatSessions.findIndex(s => s.id === currentSessionId);
@@ -819,7 +831,7 @@
     summInputBtn.addEventListener('click', async () => {
       const t = translations[currentLang];
       switchView('chat');
-      appendMessage(t.analyzing, false);
+      appendMessage(t.analyzing, false, true);
       
       const pageText = await collectAllFramesContent();
       
@@ -913,7 +925,7 @@
       const ctx = target.getAttribute('data-context');
       if (ctx === 'page') {
         const t = translations[currentLang];
-        appendMessage(t.analyzing, false);
+        appendMessage(t.analyzing, false, true);
         const pageText = await collectAllFramesContent();
         if (!pageText || pageText.length < 20) {
           appendMessage(t.errorGeneric, false);
