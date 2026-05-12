@@ -14,6 +14,8 @@
 ### 📝 Açıklama
 **Lumina AI Web Assistant**, web deneyiminizi yapay zeka ile güçlendiren, ultra hızlı ve premium tasarımlı bir Chrome eklentisidir. Sayfaları saniyeler içinde özetler, karmaşık metinleri açıklar ve önemli bilgileri not almanızı sağlar.
 
+![Lumina AI Demo](./assets/demo.png)
+
 ### ✨ Öne Çıkan Özellikler
 
 - **🌐 Çoklu Sağlayıcı Desteği:** 
@@ -51,6 +53,8 @@
 
 ### 📝 Description
 **Lumina AI Web Assistant** is an ultra-fast, premium-designed Chrome extension that enhances your web experience with AI. It summarizes pages in seconds, explains complex texts, and allows you to take important notes instantly.
+
+![Lumina AI Demo](./assets/demo.png)
 
 ### ✨ Key Features
 
