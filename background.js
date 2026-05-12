@@ -297,7 +297,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       });
       
       Promise.all(promises).then(results => {
-        sendResponse({ contents: results.filter(c => c && c.length > 300) });
+        sendResponse({ contents: results.filter(c => c && c.length > 100) });
       });
     });
     return true; // Keep channel open for async response

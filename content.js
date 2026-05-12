@@ -31,6 +31,24 @@
     if (changes.panelOpacity) applyOpacity(changes.panelOpacity.newValue);
   });
 
+  // SPA Navigation Detection
+  let lastUrl = location.href;
+  const urlObserver = new MutationObserver(() => {
+    if (location.href !== lastUrl) {
+      lastUrl = location.href;
+      handlePageChange();
+    }
+  });
+  urlObserver.observe(document, { subtree: true, childList: true });
+
+  function handlePageChange() {
+    clearContext();
+    // Check if UI was removed by SPA DOM replacement
+    if (!document.getElementById('lumina-ai-widget-container')) {
+      document.body.appendChild(container);
+    }
+  }
+
   container.innerHTML = `
     <div id="lumina-selection-tooltip">
       <button class="lumina-tooltip-btn" id="lumina-tt-summarize">
@@ -216,13 +234,14 @@
 
     function getElementScore(el) {
       if (!isVisible(el)) return -1000;
-      if (isFloating(el)) return -500; // Cookie banners are usually fixed/absolute
+      if (isFloating(el)) return -500; 
+      if (el.id === 'lumina-ai-widget-container' || el.closest('#lumina-ai-widget-container')) return -1000;
 
       let score = 0;
       const text = (el.innerText || "").trim();
       const wordCount = text.split(/\s+/).length;
       
-      if (wordCount < 25) return -100;
+      if (wordCount < 10) return -100;
 
       const tagName = el.tagName.toLowerCase();
       if (['article', 'main'].includes(tagName)) score += 60;
@@ -244,18 +263,18 @@
       links.forEach(a => linkTextLength += (a.innerText || "").length);
       const density = (text.length - linkTextLength) / Math.max(text.length, 1);
       score += density * 100;
-      score += Math.min(wordCount / 4, 150);
+      score += Math.min(wordCount / 4, 200);
 
       return score;
     }
 
     // 1. First, try to find a high-scoring container
-    const candidates = Array.from(document.querySelectorAll('div, article, main, section'));
+    const candidates = Array.from(document.querySelectorAll('div, article, main, section')).filter(el => el.id !== 'lumina-ai-widget-container' && !el.closest('#lumina-ai-widget-container'));
     let bestEl = null;
     let maxScore = -Infinity;
 
     for (const el of candidates) {
-      if (el.children.length === 0 && el.innerText.length < 100) continue;
+      if (el.children.length === 0 && el.innerText.length < 50) continue;
       const score = getElementScore(el);
       if (score > maxScore) {
         maxScore = score;
@@ -271,15 +290,16 @@
     }
 
     // 2. Fallback: Aggregate all meaningful paragraphs if no single container is dominant
-    if (!mainText || mainText.length < 600 || (mainText.toLowerCase().includes('çerez') && mainText.length < 1500)) {
+    if (!mainText || mainText.length < 400 || (mainText.toLowerCase().includes('çerez') && mainText.length < 1000)) {
       const allElements = document.querySelectorAll('p, h1, h2, h3, div, span, li');
       const filteredParts = [];
       
       for (const el of allElements) {
+        if (el.closest('#lumina-ai-widget-container')) continue;
         if (el.querySelector('p, div')) continue; // Skip containers to avoid double-counting text
 
         const text = (el.innerText || "").trim();
-        if (text.length < 40 || text.length > 3000) continue; 
+        if (text.length < 20 || text.length > 5000) continue; 
         if (isFloating(el)) continue;
 
         const lowerText = text.toLowerCase();
@@ -288,7 +308,7 @@
         if (junkWords.some(word => lowerText.includes(word))) continue;
         
         const links = el.querySelectorAll('a');
-        if (links.length > 3 && text.length < 300) continue;
+        if (links.length > 4 && text.length < 200) continue;
 
         filteredParts.push(text);
       }
@@ -296,9 +316,21 @@
       mainText = [...new Set(filteredParts)].join('\n\n');
     }
 
+    if (!mainText || mainText.length < 150) {
+      const bodyClone = document.body.cloneNode(true);
+      removeIrrelevantElements(bodyClone);
+      const bodyText = (bodyClone.innerText || "").replace(/\s\s+/g, ' ').trim();
+      if (bodyText.length > mainText.length) {
+        mainText = bodyText;
+      }
+    }
+
     function removeIrrelevantElements(root) {
-      const tagsToRemove = ['script', 'style', 'noscript', 'iframe', 'svg', 'nav', 'footer', 'header', 'aside', '#lumina-ai-widget-container', 'form', 'button', 'input', 'select', 'img'];
+      const tagsToRemove = ['script', 'style', 'noscript', 'iframe', 'svg', 'nav', 'footer', 'header', 'aside', 'form', 'button', 'input', 'select', 'img'];
       tagsToRemove.forEach(tag => root.querySelectorAll(tag).forEach(el => el.remove()));
+      
+      const extensionUI = root.querySelector('#lumina-ai-widget-container');
+      if (extensionUI) extensionUI.remove();
 
       const noisySelectors = [
         '[class*="cookie"]', '[id*="cookie"]', '[class*="consent"]', '[id*="consent"]',
@@ -312,7 +344,7 @@
       });
     }
 
-    return mainText ? mainText.replace(/\s\s+/g, ' ').trim().substring(0, 40000) : "";
+    return mainText ? mainText.replace(/\s\s+/g, ' ').trim().substring(0, 45000) : "";
   }
 
   function appendMessage(text, isUser = false, skipStorage = false) {
@@ -524,8 +556,20 @@
   async function sendMessage(text) {
     const query = text.trim() || "Açıkla.";
     appendMessage(query, true);
-    const cType = activeContext ? activeContext.type : 'general';
-    const cData = activeContext ? activeContext.data : '';
+    let cType = activeContext ? activeContext.type : 'general';
+    let cData = activeContext ? activeContext.data : '';
+    
+    // Automatic page context if no context is selected and user is asking for summary
+    const lowerQuery = query.toLowerCase();
+    const summaryKeywords = ['özetle', 'summarize', 'özet', 'anlat', 'açıkla', 'nedir', 'analiz'];
+    if (cType === 'general' && summaryKeywords.some(k => lowerQuery.includes(k))) {
+      const autoPageContent = await collectAllFramesContent();
+      if (autoPageContent && autoPageContent.length > 100) {
+        cType = 'page';
+        cData = autoPageContent;
+      }
+    }
+
     const currentRequestId = Date.now();
     
     input.value = '';
@@ -667,6 +711,9 @@
   }
 
   async function collectAllFramesContent() {
+    // Small delay to let SPA content render
+    await new Promise(r => setTimeout(r, 500));
+    
     // 1. Get top frame content
     let topContent = getPageContent();
     let framesData = [];
@@ -675,15 +722,23 @@
     try {
       const response = await chrome.runtime.sendMessage({ type: 'GET_ALL_FRAMES_CONTENT' });
       if (response && response.contents) {
-        // Only include frames that have a decent amount of content to avoid sidebars/ads
-        framesData = response.contents.filter(c => c.length > 300);
+        // Only include frames that have a decent amount of content
+        framesData = response.contents.filter(c => c.length > 100);
       }
     } catch (e) {
       console.log("Diğer çerçevelerden içerik alınamadı:", e);
     }
     
     // Combine and prioritize the largest content block
-    const allBlocks = [topContent, ...framesData].filter(b => b.length > 50);
+    let allBlocks = [topContent, ...framesData].filter(b => b.length > 50);
+    
+    // If empty, wait a bit and try top frame again (for SPA content loading)
+    if (allBlocks.length === 0) {
+      await new Promise(r => setTimeout(r, 1000));
+      topContent = getPageContent();
+      allBlocks = [topContent, ...framesData].filter(b => b.length > 50);
+    }
+
     allBlocks.sort((a, b) => b.length - a.length);
     
     return allBlocks.join("\n\n---\n\n").trim();
