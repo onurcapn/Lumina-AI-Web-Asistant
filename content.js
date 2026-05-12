@@ -1,5 +1,17 @@
 // content.js
 (function() {
+  const isTopFrame = window.self === window.top;
+  if (!isTopFrame) {
+    // We are in an iframe. Only listen for content requests.
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      if (request.type === 'COLLECT_CONTENT') {
+        const content = getPageContent();
+        sendResponse({ content });
+      }
+    });
+    return;
+  }
+
   if (document.getElementById('lumina-ai-widget-container')) return;
 
   // Container
@@ -185,6 +197,122 @@
       return `<p>${p.trim().replace(/\n/g, '<br>')}</p>`;
     }).join('');
     return html;
+  }
+
+  function getPageContent() {
+    function isVisible(el) {
+      const style = window.getComputedStyle(el);
+      return  style.display !== 'none' && 
+              style.visibility !== 'hidden' && 
+              style.opacity !== '0' &&
+              el.offsetWidth > 0 && 
+              el.offsetHeight > 0;
+    }
+
+    function isFloating(el) {
+      const style = window.getComputedStyle(el);
+      return ['fixed', 'absolute'].includes(style.position);
+    }
+
+    function getElementScore(el) {
+      if (!isVisible(el)) return -1000;
+      if (isFloating(el)) return -500; // Cookie banners are usually fixed/absolute
+
+      let score = 0;
+      const text = (el.innerText || "").trim();
+      const wordCount = text.split(/\s+/).length;
+      
+      if (wordCount < 25) return -100;
+
+      const tagName = el.tagName.toLowerCase();
+      if (['article', 'main'].includes(tagName)) score += 60;
+      if (['section', 'div'].includes(tagName)) score += 5;
+
+      const idAndClass = (el.id + " " + el.className).toLowerCase();
+      const noisyWords = ['nav', 'menu', 'footer', 'header', 'aside', 'sidebar', 'cookie', 'consent', 'çerez', 'banner', 'ad-', 'social', 'share', 'widget', 'popup', 'modal', 'kvkk'];
+      noisyWords.forEach(word => {
+        if (idAndClass.includes(word)) score -= 40;
+      });
+
+      const articleWords = ['content', 'article', 'post', 'body', 'main', 'story', 'entry', 'text', 'haber', 'makale'];
+      articleWords.forEach(word => {
+        if (idAndClass.includes(word)) score += 25;
+      });
+
+      const links = el.querySelectorAll('a');
+      let linkTextLength = 0;
+      links.forEach(a => linkTextLength += (a.innerText || "").length);
+      const density = (text.length - linkTextLength) / Math.max(text.length, 1);
+      score += density * 100;
+      score += Math.min(wordCount / 4, 150);
+
+      return score;
+    }
+
+    // 1. First, try to find a high-scoring container
+    const candidates = Array.from(document.querySelectorAll('div, article, main, section'));
+    let bestEl = null;
+    let maxScore = -Infinity;
+
+    for (const el of candidates) {
+      if (el.children.length === 0 && el.innerText.length < 100) continue;
+      const score = getElementScore(el);
+      if (score > maxScore) {
+        maxScore = score;
+        bestEl = el;
+      }
+    }
+
+    let mainText = "";
+    if (bestEl && maxScore > 30) {
+      const clone = bestEl.cloneNode(true);
+      removeIrrelevantElements(clone);
+      mainText = clone.innerText || clone.textContent;
+    }
+
+    // 2. Fallback: Aggregate all meaningful paragraphs if no single container is dominant
+    if (!mainText || mainText.length < 600 || (mainText.toLowerCase().includes('çerez') && mainText.length < 1500)) {
+      const allElements = document.querySelectorAll('p, h1, h2, h3, div, span, li');
+      const filteredParts = [];
+      
+      for (const el of allElements) {
+        if (el.querySelector('p, div')) continue; // Skip containers to avoid double-counting text
+
+        const text = (el.innerText || "").trim();
+        if (text.length < 40 || text.length > 3000) continue; 
+        if (isFloating(el)) continue;
+
+        const lowerText = text.toLowerCase();
+        const junkWords = ['çerez', 'cookie', 'consent', 'privacy', 'kvkk', 'gizlilik', 'şartlar', 'terms', 'kabul et', 'reddet', 'ayarlar', 'tüm hakları', 'çerezleri', 'cookies'];
+        
+        if (junkWords.some(word => lowerText.includes(word))) continue;
+        
+        const links = el.querySelectorAll('a');
+        if (links.length > 3 && text.length < 300) continue;
+
+        filteredParts.push(text);
+      }
+      
+      mainText = [...new Set(filteredParts)].join('\n\n');
+    }
+
+    function removeIrrelevantElements(root) {
+      const tagsToRemove = ['script', 'style', 'noscript', 'iframe', 'svg', 'nav', 'footer', 'header', 'aside', '#lumina-ai-widget-container', 'form', 'button', 'input', 'select', 'img'];
+      tagsToRemove.forEach(tag => root.querySelectorAll(tag).forEach(el => el.remove()));
+
+      const noisySelectors = [
+        '[class*="cookie"]', '[id*="cookie"]', '[class*="consent"]', '[id*="consent"]',
+        '[class*="popup"]', '[id*="popup"]', '[class*="gdpr"]', '[id*="gdpr"]',
+        '[class*="çerez"]', '[id*="çerez"]', '.kvkk', '#kvkk', '.privacy',
+        '.social-share', '.related-posts', '.comments-section', '#comments',
+        '.sidebar', '.navigation', '.menu', '.header', '.footer'
+      ];
+      noisySelectors.forEach(selector => {
+        try { root.querySelectorAll(selector).forEach(el => el.remove()); } catch(e) {}
+      });
+    }
+
+    return mainText ? mainText.replace(/\s\s+/g, ' ').trim().substring(0, 40000) : "";
   }
 
   function appendMessage(text, isUser = false, skipStorage = false) {
@@ -398,21 +526,35 @@
     appendMessage(query, true);
     const cType = activeContext ? activeContext.type : 'general';
     const cData = activeContext ? activeContext.data : '';
+    const currentRequestId = Date.now();
+    
     input.value = '';
     input.style.height = 'auto';
     clearContext();
+    
     const aiBubble = appendMessage("", false);
     let fullReply = "";
     const port = getPort();
-    port.postMessage({ type: 'PROCESS_QUERY', payload: { query, contextType: cType, contextData: cData } });
+    
+    port.postMessage({ 
+      type: 'PROCESS_QUERY', 
+      payload: { query, contextType: cType, contextData: cData, requestId: currentRequestId } 
+    });
+
     const messageHandler = (msg) => {
+      if (msg.requestId && msg.requestId !== currentRequestId) return;
+
       if (msg.type === 'chunk') {
         fullReply += msg.payload;
         aiBubble.innerHTML = parseMarkdown(fullReply);
         chatHistory.scrollTop = chatHistory.scrollHeight;
       } else if (msg.type === 'done' || msg.type === 'error') {
-        if (msg.type === 'error') aiBubble.innerHTML = `<span style="color: #ef4444">${msg.payload}</span>`;
-        // After full reply is received, update session with the complete text
+        if (msg.type === 'error') {
+          aiBubble.innerHTML = `<div style="color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2);">
+            <strong>Hata:</strong> ${msg.payload}
+          </div>`;
+        }
+        
         const lastMsg = currentMessages[currentMessages.length - 1];
         if (lastMsg && !lastMsg.isUser) lastMsg.text = fullReply;
         updateCurrentSession();
@@ -509,11 +651,42 @@
 
   const summInputBtn = document.getElementById('lumina-btn-summarize-input');
   if (summInputBtn) {
-    summInputBtn.addEventListener('click', () => {
+    summInputBtn.addEventListener('click', async () => {
       switchView('chat');
-      activeContext = { type: 'page', data: document.body.innerText.substring(0, 15000) };
+      appendMessage("Sayfa içeriği analiz ediliyor (tüm çerçeveler dahil)...", false);
+      
+      const pageText = await collectAllFramesContent();
+      
+      if (!pageText || pageText.length < 20) {
+        appendMessage("Sayfa içeriği okunamadı. Lütfen sayfanın yüklendiğinden emin olun.", false);
+        return;
+      }
+      activeContext = { type: 'page', data: pageText };
       sendMessage("Bu sayfayı özetle.");
     });
+  }
+
+  async function collectAllFramesContent() {
+    // 1. Get top frame content
+    let topContent = getPageContent();
+    let framesData = [];
+    
+    // 2. Ask background script to get content from other frames
+    try {
+      const response = await chrome.runtime.sendMessage({ type: 'GET_ALL_FRAMES_CONTENT' });
+      if (response && response.contents) {
+        // Only include frames that have a decent amount of content to avoid sidebars/ads
+        framesData = response.contents.filter(c => c.length > 300);
+      }
+    } catch (e) {
+      console.log("Diğer çerçevelerden içerik alınamadı:", e);
+    }
+    
+    // Combine and prioritize the largest content block
+    const allBlocks = [topContent, ...framesData].filter(b => b.length > 50);
+    allBlocks.sort((a, b) => b.length - a.length);
+    
+    return allBlocks.join("\n\n---\n\n").trim();
   }
 
   document.addEventListener('selectionchange', () => {
@@ -557,11 +730,19 @@
   }
 
   document.querySelectorAll('.lumina-quick-prompt').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', async (e) => {
       const target = e.target.closest('.lumina-quick-prompt');
       const p = target.getAttribute('data-prompt');
       const ctx = target.getAttribute('data-context');
-      if (ctx === 'page') activeContext = { type: 'page', data: document.body.innerText.substring(0, 15000) };
+      if (ctx === 'page') {
+        appendMessage("Sayfa analizi başlatıldı...", false);
+        const pageText = await collectAllFramesContent();
+        if (!pageText || pageText.length < 20) {
+          appendMessage("İçerik çekilemedi.", false);
+          return;
+        }
+        activeContext = { type: 'page', data: pageText };
+      }
       sendMessage(p);
     });
   });

@@ -8,19 +8,19 @@ const providerApiKeyHints = {
 };
 
 const providerModels = {
-  grok:      "grok-4.20-reasoning",
+  grok:      "grok-2-1212",
   groq:      "llama-3.3-70b-versatile",
   openai:    "gpt-4o",
   gemini:    "gemini-2.0-flash",
-  anthropic: "claude-sonnet-4-5"
+  anthropic: "claude-3-5-sonnet-20241022"
 };
 
 const providerHints = {
-  grok:      "Örn: <code>grok-4.20-reasoning</code>, <code>grok-3</code>",
+  grok:      "Örn: <code>grok-2-1212</code>, <code>grok-beta</code>",
   groq:      "Örn: <code>llama-3.3-70b-versatile</code>, <code>deepseek-r1-distill-llama-70b</code>",
   openai:    "Örn: <code>gpt-4o</code>, <code>gpt-4o-mini</code>, <code>o3-mini</code>",
-  gemini:    "Örn: <code>gemini-2.0-flash</code>, <code>gemini-2.5-pro</code>",
-  anthropic: "Örn: <code>claude-sonnet-4-5</code>, <code>claude-opus-4-5</code>"
+  gemini:    "Örn: <code>gemini-2.0-flash</code>, <code>gemini-1.5-pro</code>",
+  anthropic: "Örn: <code>claude-3-5-sonnet-20241022</code>, <code>claude-3-opus-20240229</code>"
 };
 
 function saveOptions() {
