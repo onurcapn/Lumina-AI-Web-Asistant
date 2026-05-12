@@ -12,7 +12,8 @@
     return;
   }
 
-  if (document.getElementById('lumina-ai-widget-container')) return;
+  const oldContainer = document.getElementById('lumina-ai-widget-container');
+  if (oldContainer) oldContainer.remove();
 
   // Container
   const container = document.createElement('div');
@@ -829,19 +830,49 @@
 
   const resizeHandle = document.getElementById('lumina-ai-resize-handle');
   if (resizeHandle && panel) {
-    let isResizing = false, startX, startWidth;
+    let isResizing = false;
+    let resizeGlass = null;
+    
     resizeHandle.addEventListener('mousedown', (e) => {
-      isResizing = true; startX = e.clientX; startWidth = parseInt(getComputedStyle(panel).width);
-      document.body.style.cursor = 'ew-resize'; panel.style.transition = 'none';
+      isResizing = true;
+      resizeHandle.classList.add('dragging');
+      document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none';
+      panel.style.transition = 'none';
+      
+      // Iframe'lerin mouse eventlerini çalmasını engellemek için cam katman ekle
+      resizeGlass = document.createElement('div');
+      resizeGlass.style.position = 'fixed';
+      resizeGlass.style.top = '0';
+      resizeGlass.style.left = '0';
+      resizeGlass.style.width = '100vw';
+      resizeGlass.style.height = '100vh';
+      resizeGlass.style.zIndex = '2147483647';
+      resizeGlass.style.cursor = 'ew-resize';
+      resizeGlass.style.background = 'transparent';
+      document.body.appendChild(resizeGlass);
+      
+      e.preventDefault();
     });
+
     document.addEventListener('mousemove', (e) => {
       if (!isResizing) return;
-      const w = startWidth + (startX - e.clientX);
-      if (w > 320 && w < window.innerWidth * 0.8) panel.style.width = w + 'px';
+      const w = window.innerWidth - e.clientX;
+      if (w > 320 && w < window.innerWidth * 0.95) {
+        panel.style.width = w + 'px';
+      }
     });
+
     document.addEventListener('mouseup', () => {
       if (isResizing) {
-        isResizing = false; document.body.style.cursor = 'default';
+        isResizing = false;
+        if (resizeGlass) {
+          resizeGlass.remove();
+          resizeGlass = null;
+        }
+        resizeHandle.classList.remove('dragging');
+        document.body.style.cursor = 'default';
+        document.body.style.userSelect = '';
         panel.style.transition = 'right 0.4s cubic-bezier(0.16, 1, 0.3, 1), width 0.1s ease';
       }
     });

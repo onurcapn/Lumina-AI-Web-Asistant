@@ -41,7 +41,7 @@
   transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1), width 0.1s ease;
   pointer-events: all;
   min-width: 320px;
-  max-width: 85vw;
+  max-width: 95vw;
 }
 
 #lumina-ai-chat-panel.lumina-active {
@@ -51,17 +51,19 @@
 /* RESIZE HANDLE */
 #lumina-ai-resize-handle {
   position: absolute;
-  left: 0;
+  left: -8px;
   top: 0;
-  width: 6px;
+  width: 16px;
   height: 100%;
   cursor: ew-resize;
   background: transparent;
-  z-index: 10;
+  z-index: 100;
   transition: background 0.2s;
 }
-#lumina-ai-resize-handle:hover {
-  background: rgba(139, 92, 246, 0.5);
+#lumina-ai-resize-handle:hover,
+#lumina-ai-resize-handle.dragging {
+  background: rgba(139, 92, 246, 0.3);
+  border-left: 1px solid var(--lumina-primary);
 }
 
 /* HEADER */
